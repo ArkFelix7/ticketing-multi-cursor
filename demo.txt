@@ -1,0 +1,26 @@
+// SECURITY WARNING: These credentials are now stored in the .env file.
+// This demo file should not be committed to version control.
+// Consider deleting this file or removing credentials when not in use.
+
+Email Integration Configuration Summary:
+
+Parameter	Value
+IMAP Server	imap.gmail.com
+IMAP Port	993
+SMTP Server	smtp.gmail.com
+SMTP Port	465
+SMTP/IMAP SSL/TLS	Yes
+
+Credentials (moved to .env file):
+- EMAIL_USER=aivialabs@gmail.com
+- EMAIL_PASS=[REDACTED] (stored in .env)
+- EMAIL_FROM=aivialabs@gmail.com
+- CC_EMAIL=aaryashah130402@gmail.com (test only)
+
+NOTES:
+1. The Gmail password shown previously has been moved to .env
+2. For security, use App Passwords instead of actual Gmail passwords
+3. This app password may be rotated periodically for security
+
+
+https://www.npmjs.com/package/sendmail

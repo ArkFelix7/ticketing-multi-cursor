@@ -1,0 +1,43 @@
+name: multi-tenant-ticketing
+metadata:
+  template: azd-init@1.0.0
+
+services:
+  web:
+    project: .
+    language: ts
+    host: appservice
+    hooks:
+      prebuild:
+        windows:
+          shell: pwsh
+          run: npm install
+        posix:
+          shell: bash
+          run: npm install
+      prestart:
+        windows:
+          shell: pwsh
+          run: npx prisma generate
+        posix:
+          shell: bash
+          run: npx prisma generate
+
+  db:
+    project: .
+    language: ts
+    host: appservice
+    hooks:
+      prebuild:
+        windows:
+          shell: pwsh
+          run: npx prisma generate
+        posix:
+          shell: bash
+          run: npx prisma generate
+
+env:
+  AZURE_LOCATION: eastus
+  AZURE_ENV_NAME: dev
+  DATABASE_URL: ${AZURE_POSTGRESQL_CONNECTION_STRING}
+  NODE_ENV: production

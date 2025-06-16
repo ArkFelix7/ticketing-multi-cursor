@@ -1,0 +1,176 @@
+// Prisma schema for Supabase (Postgres)
+// Update the provider and url as needed
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String    @id
+  email        String    @unique
+  displayName  String
+  photoURL     String?
+  role         String    @default("user") // "admin", "user", "agent"
+  companyId    String?
+  company      Company?  @relation(fields: [companyId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastLoginAt  DateTime?
+  tickets      Ticket[]  @relation("TicketCreator")
+  assignedTickets Ticket[] @relation("TicketAssignee")
+}
+
+model Company {
+  id           String    @id @default(cuid())
+  name         String
+  slug         String    @unique
+  ownerId      String
+  supportEmail String?
+  ticketIdPrefix String  @default("TCK")
+  defaultCCs   String[]  @default([])
+  autoRepliesEnabled Boolean @default(true)
+  notificationsEnabled Boolean @default(true)
+  notificationEmails String[] @default([]) // Email addresses to send notifications to
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  settings     Json?
+  users        User[]
+  tickets      Ticket[]
+  mailboxes    Mailbox[]
+  autoReplyTemplates AutoReplyTemplate[]
+  notificationTemplates NotificationTemplate[]
+}
+
+model Ticket {
+  id           String    @id @default(cuid())
+  ticketNumber String    @unique
+  subject      String
+  status       String    @default("open") // "open", "pending", "in-progress", "closed"
+  priority     String    @default("medium") // "low", "medium", "high", "urgent"
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  closedAt     DateTime?
+  creatorId    String
+  creator      User      @relation("TicketCreator", fields: [creatorId], references: [id])
+  assigneeId   String?
+  assignee     User?     @relation("TicketAssignee", fields: [assigneeId], references: [id])
+  companyId    String
+  company      Company   @relation(fields: [companyId], references: [id])
+  emailId      String?
+  email        Email?    @relation(fields: [emailId], references: [id])
+  messages     Message[]
+}
+
+model Email {
+  id           String    @id @default(cuid())
+  messageId    String    @unique
+  subject      String
+  fromEmail    String
+  fromName     String?
+  toEmail      String[]
+  ccEmail      String[]
+  bccEmail     String[]
+  body         String
+  bodyHtml     String?
+  receivedAt   DateTime  @default(now())
+  mailboxId    String
+  mailbox      Mailbox   @relation(fields: [mailboxId], references: [id])
+  companyId    String
+  rawMimeContent String
+  headers      Json?
+  isProcessed  Boolean   @default(false)
+  tickets      Ticket[]
+}
+
+model Mailbox {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  provider     String    // "gmail" | "outlook" | "other"
+  protocol     String    // "imap", "smtp"
+  imapHost     String?
+  imapPort     Int?
+  imapUser     String?
+  imapPass     String?
+  imapSSL      Boolean   @default(true)
+  smtpHost     String?
+  smtpPort     Int?
+  smtpUser     String?
+  smtpPass     String?
+  smtpSSL      Boolean   @default(true)
+  oauth        Json?
+  isActive     Boolean   @default(true)
+  status       String    @default("inactive") // "active", "inactive", "error"
+  lastSyncAt   DateTime?
+  lastError    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  companyId    String
+  company      Company   @relation(fields: [companyId], references: [id])
+  emails       Email[]
+}
+
+model Message {
+  id           String    @id @default(cuid())
+  body         String
+  bodyHtml     String?
+  createdAt    DateTime  @default(now())
+  authorId     String?
+  authorName   String?
+  authorEmail  String?
+  isInternal   Boolean   @default(false)
+  ticketId     String
+  ticket       Ticket    @relation(fields: [ticketId], references: [id])
+  attachments  Attachment[]
+}
+
+model Attachment {
+  id           String    @id @default(cuid())
+  fileName     String
+  fileType     String
+  fileSize     Int
+  fileUrl      String
+  createdAt    DateTime  @default(now())
+  messageId    String
+  message      Message   @relation(fields: [messageId], references: [id])
+}
+
+model AutoReplyTemplate {
+  id           String    @id @default(cuid())
+  name         String
+  subject      String    // Template for email subject
+  bodyText     String    // Plain text template
+  bodyHtml     String    // HTML template
+  isDefault    Boolean   @default(false)
+  isActive     Boolean   @default(true)
+  variables    Json?     // Available template variables and their descriptions
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  companyId    String
+  company      Company   @relation(fields: [companyId], references: [id])
+  
+  @@unique([companyId, name])
+}
+
+model NotificationTemplate {
+  id           String    @id @default(cuid())
+  name         String
+  subject      String    // Template for email subject (will be prefixed with ticket number)
+  bodyText     String    // Plain text template
+  bodyHtml     String    // HTML template
+  isDefault    Boolean   @default(false)
+  isActive     Boolean   @default(true)
+  variables    Json?     // Available template variables and their descriptions
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  companyId    String
+  company      Company   @relation(fields: [companyId], references: [id])
+  
+  @@unique([companyId, name])
+}

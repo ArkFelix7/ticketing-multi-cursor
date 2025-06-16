@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npm run build:vercel",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "functions": {
+    "app/api/**": {
+      "maxDuration": 30
+    }
+  }
+}

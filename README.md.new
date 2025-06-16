@@ -1,0 +1,76 @@
+# Multi-Tenant Ticketing System
+
+This is a multi-tenant ticketing system that includes email integration for automatic ticket creation from incoming emails.
+
+## Key Features
+
+- Multi-tenant architecture with company isolation
+- Email integration with Gmail/SMTP
+- Automatic ticket creation from emails
+- Auto-reply functionality
+- Dashboard for ticket management
+- User authentication and authorization
+- Company-specific settings
+
+## Setup Instructions
+
+### Prerequisites
+
+1. Node.js 16+
+2. PostgreSQL database (or Supabase)
+3. Gmail account for email integration
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables (see `.env.example`)
+4. Run migrations: `npx prisma migrate dev`
+5. Start the development server: `npm run dev`
+
+### Email Integration
+
+For detailed instructions on setting up email integration, see [TESTING-EMAIL-INTEGRATION.md](./TESTING-EMAIL-INTEGRATION.md).
+
+## Architecture
+
+- **Frontend**: Next.js with React Server Components
+- **Backend**: Next.js API routes
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: Firebase Auth
+- **Email**: IMAP/SMTP integration with nodemailer and imap-simple
+
+## Testing
+
+Run tests with:
+
+```bash
+# Test email integration
+npx tsx scripts/test-smtp-auto-reply.ts --once
+
+# Test mailbox sync
+npx tsx scripts/sync-mailboxes.ts
+```
+
+## Logging
+
+The system includes a structured logging system with the following levels:
+
+- `debug`: Detailed information, typically only valuable during development
+- `info`: Confirmation that things are working as expected
+- `warn`: Indication of potential issues 
+- `error`: Error conditions that need attention
+
+Logs are printed to the console but can be easily extended to log to a file or external service.
+
+## Security Considerations
+
+- Email passwords should be stored securely (encrypted in the database)
+- Use App Passwords instead of regular Gmail passwords
+- Implement proper authentication and authorization
+- Validate all user inputs
+- Protect against XSS and CSRF attacks
+
+## License
+
+MIT

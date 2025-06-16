@@ -10,6 +10,9 @@ env:
   AZURE_WEBAPP_NAME: multi-tenant-ticketing-app
   AZURE_WEBAPP_PACKAGE_PATH: '.'
   NODE_VERSION: '20.x'
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  DIRECT_URL: ${{ secrets.DIRECT_URL }}
+  NODE_ENV: production
 
 jobs:
   build-and-deploy:
